@@ -9,6 +9,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "hardhat/console.sol";
+
 contract Muzu is
     Initializable,
     ERC721Upgradeable,
@@ -20,6 +22,8 @@ contract Muzu is
 
     using CountersUpgradeable for CountersUpgradeable.Counter;
     mapping(address => string) public userProfiles;
+    mapping(address => uint256) public artistsBalances;
+    mapping(uint256 => uint256) public tokensToTracks;
 
     CountersUpgradeable.Counter private _tokenIdCounter;
     CountersUpgradeable.Counter private _trackIdCounter;
@@ -33,6 +37,7 @@ contract Muzu is
         uint256 albumId;
         uint256 mintPrice;
         uint256 supply;
+        uint256 minted;
         RoyaltyInfo royaltyInfo;
     }
 
@@ -84,6 +89,7 @@ contract Muzu is
                 _albumId,
                 _track.mintPrice,
                 _track.supply,
+                0,
                 _track.royaltyInfo
             )
         );
@@ -111,11 +117,34 @@ contract Muzu is
         emit AlbumDefined(msg.sender, albumId, _info);
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner {
+    function mintTrack(uint256 _trackId) public {
+        Track storage track = tracks[_trackId];
+        require(track.minted < track.supply, "max supply");
+        track.minted += 1;
+        artistsBalances[track.artist] += track.mintPrice;
+        IERC20(usdcAddress).transferFrom(
+            msg.sender,
+            address(this),
+            track.mintPrice
+        );
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+
+        _safeMint(msg.sender, tokenId);
+        _setTokenURI(tokenId, track.metadata);
+        _setTokenRoyalty(tokenId, track.royaltyInfo.receiver, track.royaltyInfo.royaltyFraction);
+        tokensToTracks[tokenId] = _trackId;
+    }
+
+    function mintAlbum() public {}
+
+    function _mintTrack() internal {}
+
+    function safeMint(address to, string memory uri) public onlyOwner {
+        //uint256 tokenId = _tokenIdCounter.current();
+        //_tokenIdCounter.increment();
+        //_safeMint(to, tokenId);
+        //_setTokenURI(tokenId, uri);
     }
 
     // The following functions are overrides required by Solidity.

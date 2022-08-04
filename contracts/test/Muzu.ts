@@ -39,6 +39,63 @@ describe("Muzu", function () {
     return { muzu, owner, otherAccount, usdc };
   };
 
+  const deployMuzuAndSetupAccountAndCreateAlbum = async () => {
+    const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+
+    const USDC = await ethers.getContractFactory("USDC");
+    const usdc = await USDC.deploy();
+
+    usdc.mint(otherAccount.address, ethers.utils.parseUnits("10000", 18));
+
+    const Muzu = await ethers.getContractFactory("Muzu");
+    const muzu = await Muzu.deploy();
+
+    await muzu.initialize(usdc.address);
+
+    const userProfileHash = "someipfsstring";
+
+    await muzu.setupAccount(userProfileHash);
+
+    const track = {
+      metadata: "someipfshashfordata",
+      mintPrice: ethers.utils.parseUnits("5", 18),
+      supply: 3,
+      royaltyInfo: {
+        receiver: owner.address,
+        royaltyFraction: 500,
+      },
+    };
+
+    const track2 = {
+      metadata: "someipfshashfordata2",
+      mintPrice: ethers.utils.parseUnits("6", 18),
+      supply: 3,
+      royaltyInfo: {
+        receiver: owner.address,
+        royaltyFraction: 500,
+      },
+    };
+
+    const track3 = {
+      metadata: "someipfshashfordata3",
+      mintPrice: ethers.utils.parseUnits("7", 18),
+      supply: 3,
+      royaltyInfo: {
+        receiver: owner.address,
+        royaltyFraction: 500,
+      },
+    };
+
+    const album = {
+      info: "someipfshashw",
+      tracks: [track, track2, track3],
+    };
+
+    await muzu.definedAlbum(album.info, album.tracks);
+
+    return { muzu, owner, otherAccount, anotherAccount, usdc };
+  };
+
   describe("Setup Artist Account", function () {
     it("Setup account should be discoverable", async function () {
       const { muzu, owner } = await loadFixture(deployMuzu);
@@ -174,6 +231,69 @@ describe("Muzu", function () {
 
       expect(definedAlbum.artist).to.equal(owner.address);
       expect(definedAlbum.info).to.equal(album.info);
+    });
+  });
+
+  describe("Mint track", function () {
+    it("Should have money to mint", async function () {
+      const { muzu, owner, otherAccount, anotherAccount, usdc } =
+        await loadFixture(deployMuzuAndSetupAccountAndCreateAlbum);
+
+      await usdc
+        .connect(anotherAccount)
+        .approve(muzu.address, ethers.utils.parseUnits("1000", 18));
+
+      await expect(
+        muzu.connect(anotherAccount).mintTrack(0)
+      ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+    });
+
+    it("Should not mint more than supply", async function () {
+      const { muzu, owner, otherAccount, anotherAccount, usdc } =
+        await loadFixture(deployMuzuAndSetupAccountAndCreateAlbum);
+
+      await usdc
+        .connect(otherAccount)
+        .approve(muzu.address, ethers.utils.parseUnits("1000", 18));
+
+      await muzu.connect(otherAccount).mintTrack(0);
+      await muzu.connect(otherAccount).mintTrack(0);
+      await muzu.connect(otherAccount).mintTrack(0);
+
+      await expect(muzu.connect(otherAccount).mintTrack(0)).to.be.revertedWith(
+        "max supply"
+      );
+    });
+
+    it("Should increase the artist balance", async function () {
+      const { muzu, owner, otherAccount, anotherAccount, usdc } =
+        await loadFixture(deployMuzuAndSetupAccountAndCreateAlbum);
+
+      await usdc
+        .connect(otherAccount)
+        .approve(muzu.address, ethers.utils.parseUnits("1000", 18));
+
+      expect(await muzu.artistsBalances(owner.address)).to.equal(0);
+
+      await muzu.connect(otherAccount).mintTrack(0);
+      expect(await muzu.artistsBalances(owner.address)).to.equal(
+        ethers.utils.parseUnits("5", 18)
+      );
+    });
+
+    it("Should actually get the NFT", async function () {
+      const { muzu, owner, otherAccount, anotherAccount, usdc } =
+        await loadFixture(deployMuzuAndSetupAccountAndCreateAlbum);
+
+      await usdc
+        .connect(otherAccount)
+        .approve(muzu.address, ethers.utils.parseUnits("1000", 18));
+
+      await muzu.connect(otherAccount).mintTrack(0);
+
+      expect(await muzu.ownerOf(0)).to.equal(otherAccount.address);
+      expect(await muzu.tokenURI(0)).to.equal("someipfshashfordata");
+      expect(await muzu.tokensToTracks(0)).to.equal(0);
     });
   });
 });
