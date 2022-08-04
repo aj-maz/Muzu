@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URISto
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Muzu is
     Initializable,
@@ -15,6 +16,8 @@ contract Muzu is
     ERC721RoyaltyUpgradeable,
     OwnableUpgradeable
 {
+    address public usdcAddress;
+
     using CountersUpgradeable for CountersUpgradeable.Counter;
     mapping(address => string) public userProfiles;
 
@@ -48,12 +51,14 @@ contract Muzu is
     mapping(uint256 => Track) public tracks;
     mapping(uint256 => Album) public albums;
 
-    function initialize() public initializer {
+    function initialize(address _usdcAddress) public initializer {
         __ERC721_init("Muzu", "MZU");
         __ERC721URIStorage_init();
         __ERC721Royalty_init();
         __Ownable_init();
         _albumIdCounter.increment();
+
+        usdcAddress = _usdcAddress;
     }
 
     function setupAccount(string memory _hash) public {

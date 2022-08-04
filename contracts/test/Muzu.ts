@@ -6,27 +6,37 @@ describe("Muzu", function () {
   const deployMuzu = async () => {
     const [owner, otherAccount] = await ethers.getSigners();
 
+    const USDC = await ethers.getContractFactory("USDC");
+    const usdc = await USDC.deploy();
+
+    usdc.mint(otherAccount.address, ethers.utils.parseUnits("10000", 18));
+
     const Muzu = await ethers.getContractFactory("Muzu");
     const muzu = await Muzu.deploy();
 
-    await muzu.initialize();
+    await muzu.initialize(usdc.address);
 
-    return { muzu, owner, otherAccount };
+    return { muzu, owner, otherAccount, usdc };
   };
 
   const deployMuzuAndSetupAccount = async () => {
     const [owner, otherAccount] = await ethers.getSigners();
 
+    const USDC = await ethers.getContractFactory("USDC");
+    const usdc = await USDC.deploy();
+
+    usdc.mint(otherAccount.address, ethers.utils.parseUnits("10000", 18));
+
     const Muzu = await ethers.getContractFactory("Muzu");
     const muzu = await Muzu.deploy();
 
-    await muzu.initialize();
+    await muzu.initialize(usdc.address);
 
     const userProfileHash = "someipfsstring";
 
     await muzu.setupAccount(userProfileHash);
 
-    return { muzu, owner, otherAccount };
+    return { muzu, owner, otherAccount, usdc };
   };
 
   describe("Setup Artist Account", function () {
