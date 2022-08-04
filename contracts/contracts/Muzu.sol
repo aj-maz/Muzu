@@ -20,23 +20,40 @@ contract Muzu is
 
     CountersUpgradeable.Counter private _tokenIdCounter;
     CountersUpgradeable.Counter private _trackIdCounter;
+    CountersUpgradeable.Counter private _albumIdCounter;
 
     // needs to override royalty info
 
     struct Track {
+        address artist;
+        string metadata;
+        uint256 albumId;
+        uint256 mintPrice;
+        uint256 supply;
+        RoyaltyInfo royaltyInfo;
+    }
+
+    struct TrackInput {
         string metadata;
         uint256 mintPrice;
         uint256 supply;
         RoyaltyInfo royaltyInfo;
     }
 
-    Track[] public tracks;
+    struct Album {
+        address artist;
+        string info;
+    }
+
+    mapping(uint256 => Track) public tracks;
+    mapping(uint256 => Album) public albums;
 
     function initialize() public initializer {
         __ERC721_init("Muzu", "MZU");
         __ERC721URIStorage_init();
         __ERC721Royalty_init();
         __Ownable_init();
+        _albumIdCounter.increment();
     }
 
     function setupAccount(string memory _hash) public {
@@ -44,32 +61,49 @@ contract Muzu is
         emit AccountSettedUp(msg.sender, _hash);
     }
 
-    function defineTrack(
-        string memory _dataHash,
-        uint256 _mintPrice,
-        uint256 _supply,
-        address _royaltyReceiver,
-        uint96 _royaltyFraction
-    ) public {
+    function defineTrack(TrackInput memory _track) public {
+        _definedTrack(_track, msg.sender, 0);
+    }
+
+    function _definedTrack(
+        TrackInput memory _track,
+        address _artist,
+        uint256 _albumId
+    ) internal {
         uint256 trackId = _trackIdCounter.current();
         _trackIdCounter.increment();
-        tracks.push(
+        tracks[trackId] = (
             Track(
-                _dataHash,
-                _mintPrice,
-                _supply,
-                RoyaltyInfo(_royaltyReceiver, _royaltyFraction)
+                _artist,
+                _track.metadata,
+                _albumId,
+                _track.mintPrice,
+                _track.supply,
+                _track.royaltyInfo
             )
         );
         emit TrackDefined(
             msg.sender,
             trackId,
-            _dataHash,
-            _mintPrice,
-            _supply,
-            _royaltyReceiver,
-            _royaltyFraction
+            _albumId,
+            _track.metadata,
+            _track.mintPrice,
+            _track.supply,
+            _track.royaltyInfo.receiver,
+            _track.royaltyInfo.royaltyFraction
         );
+    }
+
+    function definedAlbum(string memory _info, TrackInput[] memory _tracks)
+        public
+    {
+        uint256 albumId = _albumIdCounter.current();
+        _albumIdCounter.increment();
+        for (uint256 i = 0; i < _tracks.length; i++) {
+            _definedTrack(_tracks[i], msg.sender, albumId);
+        }
+        albums[albumId] = Album(msg.sender, _info);
+        emit AlbumDefined(msg.sender, albumId, _info);
     }
 
     function safeMint(address to, string memory uri) public onlyOwner {
@@ -114,10 +148,16 @@ contract Muzu is
     event TrackDefined(
         address indexed _artist,
         uint256 indexed _trackId,
+        uint256 indexed _albumId,
         string _dataHash,
         uint256 _mintPrice,
         uint256 _supply,
         address _royaltyReceiver,
         uint96 _royaltyFraction
+    );
+    event AlbumDefined(
+        address indexed _artist,
+        uint256 indexed _albumId,
+        string _dataHash
     );
 }
