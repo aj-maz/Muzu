@@ -51,6 +51,7 @@ contract Muzu is
     struct Album {
         address artist;
         string info;
+        uint256[] trackIds;
     }
 
     mapping(uint256 => Track) public tracks;
@@ -62,7 +63,6 @@ contract Muzu is
         __ERC721Royalty_init();
         __Ownable_init();
         _albumIdCounter.increment();
-
         usdcAddress = _usdcAddress;
     }
 
@@ -72,10 +72,10 @@ contract Muzu is
     }
 
     function defineTrack(TrackInput memory _track) public {
-        _definedTrack(_track, msg.sender, 0);
+        _defineTrack(_track, msg.sender, 0);
     }
 
-    function _definedTrack(
+    function _defineTrack(
         TrackInput memory _track,
         address _artist,
         uint256 _albumId
@@ -93,6 +93,10 @@ contract Muzu is
                 _track.royaltyInfo
             )
         );
+        if (_albumId != 0) {
+            Album storage album = albums[_albumId];
+            album.trackIds.push(trackId);
+        }
         emit TrackDefined(
             msg.sender,
             trackId,
@@ -105,19 +109,36 @@ contract Muzu is
         );
     }
 
-    function definedAlbum(string memory _info, TrackInput[] memory _tracks)
+    function defineAlbum(string memory _info, TrackInput[] memory _tracks)
         public
     {
+        require(_tracks.length > 0, "empty album");
         uint256 albumId = _albumIdCounter.current();
         _albumIdCounter.increment();
+        uint256[] memory trackIds;
+        albums[albumId] = Album(msg.sender, _info, trackIds);
         for (uint256 i = 0; i < _tracks.length; i++) {
-            _definedTrack(_tracks[i], msg.sender, albumId);
+            _defineTrack(_tracks[i], msg.sender, albumId);
         }
-        albums[albumId] = Album(msg.sender, _info);
         emit AlbumDefined(msg.sender, albumId, _info);
     }
 
     function mintTrack(uint256 _trackId) public {
+        _mintTrack(_trackId);
+    }
+
+    function mintAlbum(uint256 _albumId) public {
+        require(_albumId > 0, "Not for tracks");
+        Album memory album = albums[_albumId];
+        require(album.trackIds.length > 0, "empty album");
+
+        for (uint256 i = 0; i < album.trackIds.length; i++) {
+            _mintTrack(album.trackIds[i]);
+        }
+        emit AlbumMinted(msg.sender, _albumId);
+    }
+
+    function _mintTrack(uint256 _trackId) internal {
         Track storage track = tracks[_trackId];
         require(track.minted < track.supply, "max supply");
         track.minted += 1;
@@ -132,13 +153,13 @@ contract Muzu is
 
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, track.metadata);
-        _setTokenRoyalty(tokenId, track.royaltyInfo.receiver, track.royaltyInfo.royaltyFraction);
+        _setTokenRoyalty(
+            tokenId,
+            track.royaltyInfo.receiver,
+            track.royaltyInfo.royaltyFraction
+        );
         tokensToTracks[tokenId] = _trackId;
     }
-
-    function mintAlbum() public {}
-
-    function _mintTrack() internal {}
 
     function safeMint(address to, string memory uri) public onlyOwner {
         //uint256 tokenId = _tokenIdCounter.current();
@@ -194,4 +215,5 @@ contract Muzu is
         uint256 indexed _albumId,
         string _dataHash
     );
+    event AlbumMinted(address indexed _user, uint256 indexed _albumId);
 }

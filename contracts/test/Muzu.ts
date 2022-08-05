@@ -91,7 +91,7 @@ describe("Muzu", function () {
       tracks: [track, track2, track3],
     };
 
-    await muzu.definedAlbum(album.info, album.tracks);
+    await muzu.defineAlbum(album.info, album.tracks);
 
     return { muzu, owner, otherAccount, anotherAccount, usdc };
   };
@@ -202,7 +202,7 @@ describe("Muzu", function () {
         tracks: [track, track, track, track],
       };
 
-      await expect(muzu.definedAlbum(album.info, album.tracks))
+      await expect(muzu.defineAlbum(album.info, album.tracks))
         .to.emit(muzu, "AlbumDefined")
         .withArgs(owner.address, 1, album.info);
     });
@@ -225,12 +225,12 @@ describe("Muzu", function () {
         tracks: [track, track, track, track],
       };
 
-      await muzu.definedAlbum(album.info, album.tracks);
+      await muzu.defineAlbum(album.info, album.tracks);
 
-      const definedAlbum = await muzu.albums(1);
+      const defineAlbum = await muzu.albums(1);
 
-      expect(definedAlbum.artist).to.equal(owner.address);
-      expect(definedAlbum.info).to.equal(album.info);
+      expect(defineAlbum.artist).to.equal(owner.address);
+      expect(defineAlbum.info).to.equal(album.info);
     });
   });
 
@@ -294,6 +294,34 @@ describe("Muzu", function () {
       expect(await muzu.ownerOf(0)).to.equal(otherAccount.address);
       expect(await muzu.tokenURI(0)).to.equal("someipfshashfordata");
       expect(await muzu.tokensToTracks(0)).to.equal(0);
+    });
+
+    it("Should actually emit a transfer event", async function () {
+      const { muzu, owner, otherAccount, anotherAccount, usdc } =
+        await loadFixture(deployMuzuAndSetupAccountAndCreateAlbum);
+
+      await usdc
+        .connect(otherAccount)
+        .approve(muzu.address, ethers.utils.parseUnits("1000", 18));
+
+      await expect(muzu.connect(otherAccount).mintTrack(0))
+        .to.emit(muzu, "Transfer")
+        .withArgs(ethers.constants.AddressZero, otherAccount.address, 0);
+    });
+  });
+
+  describe("Mint Album", function () {
+    it("Should have money to mint", async function () {
+      const { muzu, owner, otherAccount, anotherAccount, usdc } =
+        await loadFixture(deployMuzuAndSetupAccountAndCreateAlbum);
+
+      await usdc
+        .connect(otherAccount)
+        .approve(muzu.address, ethers.utils.parseUnits("1000", 18));
+
+      await expect(muzu.connect(otherAccount).mintAlbum(1))
+        .to.emit(muzu, "AlbumMinted")
+        .withArgs(otherAccount.address, 1);
     });
   });
 });
