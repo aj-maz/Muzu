@@ -2,25 +2,95 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: "Space Mono", monospace;
+  background-color: #fdf1db;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.logo {
+  color: #fe6167;
+  font-weight: bold;
+  font-size: 48px;
+  text-shadow: 4px 4px black;
 }
 
-* {
-  box-sizing: border-box;
+.sidebar-btn {
+  transition: 200ms;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
+.sidebar-btn:hover {
+  background-color: #ffffb5;
 }
+
+.sidebar {
+  height: calc(100vh - 76px);
+}
+
+.content {
+  width: calc(100% - 320px);
+  height: calc(100vh - 76px);
+  overflow-y: auto;
+}
+
+.panel-shadow {
+  box-shadow: 4px 4px;
+  border: 3px solid black;
+}
+
+.bg-sec {
+  background-color: #fffff1;
+}
+
+.yellow-btn {
+  background-color: #feff83;
+  transition: 200ms;
+}
+
+.yellow-btn:hover {
+  background-color: #f7d62d;
+}
+
+.sec-btn {
+  background-color: #fffff1;
+  transition: 200ms;
+}
+
+.sec-btn:hover {
+  background-color: #fde8c0;
+}
+
+.border-l-3 {
+  border-left: 3px solid black;
+}
+
+.bg-light-green {
+  background: #adffe2;
+}
+
+.bg-green {
+  background: #21ffb6;
+}
+
+.green-btn {
+  background: #21ffb6;
+  transition: 200ms;
+}
+
+.green-btn:hover {
+  background: #00fc9e;
+}
+
+.sec-btn:hover {
+  background-color: #fde8c0;
+}
+
+.bg-light-red {
+  background: #f79997;
+}
+
+.divider {
+  border-bottom: 3px solid black;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
