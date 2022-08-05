@@ -1,19 +1,38 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  const targetMint = "0x4A87a2A017Be7feA0F37f03F3379d43665486Ff8";
+  const targetMint2 = "0x26d625d436dE2665B2f67C1cCf8c054D45995354";
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  const USDC = await ethers.getContractFactory("USDC");
+  const usdc = await USDC.deploy();
 
-  await lock.deployed();
+  await sleep(5000);
 
-  console.log("Lock with 1 ETH deployed to:", lock.address);
+  console.log(`USDC address is: `, usdc.address);
+
+  usdc.mint(targetMint2, ethers.utils.parseUnits("10000", 18));
+  console.log("USDC minted for: ", targetMint);
+  await sleep(5000);
+
+  usdc.mint(targetMint, ethers.utils.parseUnits("10000", 18));
+  console.log("USDC minted for: ", targetMint2);
+  await sleep(5000);
+
+  const Muzu = await ethers.getContractFactory("Muzu");
+  const muzu = await Muzu.deploy();
+
+  await muzu.initialize(usdc.address);
+
+  console.log(`MUZU address is: `, muzu.address);
 }
+
+//USDC address is:  0x62251F8cFdB9389935a225beF541d0E940cfb6cE
+//MUZU address is:  0x5F9872012C1A71a2334deb78763ac0dD20037C00
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
