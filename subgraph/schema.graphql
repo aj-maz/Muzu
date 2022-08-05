@@ -4,3 +4,47 @@ type ExampleEntity @entity {
   _userAddress: Bytes! # address
   _hash: String! # string
 }
+
+type Artist @entity {
+  id: ID!
+  balance: BigInt!
+  name: String
+  bio: String
+  tracks: [Track!]!
+  albums: [Album!]!
+  joinedAt: BigInt!
+}
+
+type Album @entity {
+  id: ID!
+  title: String!
+  coverImage: String!
+  description: String
+  tracks: [Track!]!
+  createdAt: BigInt!
+}
+
+type Track @entity {
+  id: ID!
+  name: String!
+  content: String!
+  cover: String!
+  album: Album
+  royaltyFee: Int!
+  royaltyReceiver: String!
+  createdAt: BigInt!
+}
+
+type Token @entity {
+  id: ID!
+  track: Track!
+  owner: User!
+  mintedAt: BigInt!
+}
+
+type User @entity {
+  id: ID!
+  tokens: [Token!]!
+  Tracks: [Track!]!
+  Album: [Album!]!
+}

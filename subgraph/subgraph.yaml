@@ -8,6 +8,7 @@ dataSources:
     source:
       address: "0x5F9872012C1A71a2334deb78763ac0dD20037C00"
       abi: Muzu
+      startBlock: 27486955
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
