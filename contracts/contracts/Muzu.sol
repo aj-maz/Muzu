@@ -168,6 +168,12 @@ contract Muzu is
         //_setTokenURI(tokenId, uri);
     }
 
+    function withdraw() public {
+        uint256 balance = artistsBalances[msg.sender];
+        artistsBalances[msg.sender] = 0;
+        IERC20(usdcAddress).transfer(msg.sender, balance);
+    }
+
     // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId)
