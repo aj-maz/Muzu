@@ -1,13 +1,10 @@
 import { ReactNode, FC } from "react";
+import Logo from "./Logo";
 
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <div>
-      <header className="border-b-4 border-black ">
-        <div className="w-80 border-black border-r-4 flex items-center justify-center bg-sec">
-          <h1 className="logo ">MUZU</h1>
-        </div>
-      </header>
+      <Logo />
       <div className="flex">
         <nav className=" border-black w-80 border-black border-r-4 sidebar bg-sec inline-block">
           <div className="pt-8">
