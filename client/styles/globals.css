@@ -13,6 +13,10 @@ body {
   text-shadow: 4px 4px black;
 }
 
+.name {
+  color: #fe6167;
+}
+
 .sidebar-btn {
   transition: 200ms;
 }
@@ -22,7 +26,7 @@ body {
 }
 
 .sidebar-active-btn {
-  background-color: #FDFD93;
+  background-color: #fdfd93;
 }
 
 .sidebar {
