@@ -21,6 +21,10 @@ body {
   background-color: #ffffb5;
 }
 
+.sidebar-active-btn {
+  background-color: #FDFD93;
+}
+
 .sidebar {
   height: calc(100vh - 76px);
 }

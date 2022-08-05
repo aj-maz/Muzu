@@ -1,34 +1,50 @@
 import { FC } from "react";
+import NavButton from "./NavButton";
+import { useRouter } from "next/router";
 
 const Sidebar: FC = () => {
+  const router = useRouter();
+
+  console.log(router.pathname);
+
   return (
     <nav className=" border-black w-80 border-black border-r-4 sidebar bg-sec inline-block">
       <div className="pt-8">
-        <div className="p-2 flex justify-center items-center">
-          <div className="panel-shadow  cursor-pointer text-2xl p-2 sidebar-btn bg-sec w-64 text-center">
-            Home
-          </div>
-        </div>
-        <div className="p-2 mt-4 flex justify-center items-center">
-          <div className="panel-shadow  cursor-pointer text-2xl p-2 sidebar-btn bg-sec w-64 text-center">
-            Explore
-          </div>
-        </div>
-        <div className="p-2 mt-4 flex justify-center items-center">
-          <div className="panel-shadow  cursor-pointer text-2xl p-2 sidebar-btn bg-sec w-64 text-center">
-            Dashboard
-          </div>
-        </div>
-        <div className="p-2 mt-4 flex justify-center items-center">
-          <div className="panel-shadow  cursor-pointer text-2xl p-2 sidebar-btn bg-sec w-64 text-center">
-            Accounting
-          </div>
-        </div>
-        <div className="p-2 mt-4 flex justify-center items-center">
-          <div className="panel-shadow  cursor-pointer text-2xl p-2 sidebar-btn bg-sec w-64 text-center">
-            Profile
-          </div>
-        </div>
+        <NavButton
+          isActive={router.pathname === "/"}
+          label="Home"
+          onClick={() => {
+            router.push("/");
+          }}
+        />
+        <NavButton
+          isActive={router.pathname === "/explore"}
+          label="Explore"
+          onClick={() => {
+            router.push("/explore");
+          }}
+        />
+        <NavButton
+          isActive={router.pathname === "/dashboard"}
+          label="Dashboard"
+          onClick={() => {
+            router.push("/dashboard");
+          }}
+        />
+        <NavButton
+          isActive={router.pathname === "/accounting"}
+          label="Accounting"
+          onClick={() => {
+            router.push("/accounting");
+          }}
+        />
+        <NavButton
+          isActive={router.pathname === "/profile"}
+          label="Profile"
+          onClick={() => {
+            router.push("/profile");
+          }}
+        />
       </div>
     </nav>
   );
