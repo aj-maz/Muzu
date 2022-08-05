@@ -1,5 +1,6 @@
 import { FC, useState } from "react";
 import { useRouter } from "next/router";
+import { upload } from "../lib/web3StorageHelper";
 
 const SetupForm: FC = () => {
   const router = useRouter();
@@ -29,6 +30,13 @@ const SetupForm: FC = () => {
           className={`panel-shadow inline-block p-2 ml-5 text-lg  px-8 ${
             name ? "green-btn cursor-pointer" : "disabled-btn"
           }`}
+          onClick={async () => {
+            if (name) {
+              const metadata = await upload({ name, bio });
+
+              console.log(metadata);
+            }
+          }}
         >
           Setup Account
         </div>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const upload = (data: string) => {
+const upload = (data: object) => {
   const token =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGYzNTQwOTM5OGMwNTVGYTc3OTk4ODRFZWU0NWEwQjVjZTFCREE4OEYiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2MzcxOTUyNDE3MzAsIm5hbWUiOiJmcmVlLWZpbGUtc3RvcmUifQ.JL3F5ls1L7ErT3PGEWfw-O9ytJOG84PfFS8Ar98G9f4";
   var config = {
