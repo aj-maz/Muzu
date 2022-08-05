@@ -1,4 +1,4 @@
-import { ReactNode, FC } from "react";
+import { FC } from "react";
 
 const Logo: FC = () => {
   return (
