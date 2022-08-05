@@ -6,6 +6,18 @@ body {
   background-color: #fdf1db;
 }
 
+textarea {
+  border: none;
+  background-color: transparent;
+  resize: none;
+  outline: none;
+}
+
+input {
+  border: none;
+  outline-width: 0;
+}
+
 .logo {
   color: #fe6167;
   font-weight: bold;
@@ -77,6 +89,13 @@ body {
 .bg-green {
   background: #21ffb6;
 }
+
+.disabled-btn {
+  background: #c8c8c8;
+  cursor: not-allowed !important;
+  transition: 200ms;
+}
+
 
 .green-btn {
   background: #21ffb6;
