@@ -1,10 +1,40 @@
+import { useContext, useState } from "react";
 import Layout from "../../components/Layout";
 import { gql, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useWeb3React } from "@web3-react/core";
+import { FaPlay, FaPause } from "react-icons/fa";
+import { LitContext } from "../../lib/LitProvider";
+
+import getTrackUrl from "../../lib/getTrackUrl";
+
+interface Track {
+  id: string;
+  name: string;
+  cover: string;
+  content: string;
+  created: string;
+  artist: Artist;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  bio: string;
+  tracks: Track[];
+}
 
 const ArtistProfile = () => {
   const router = useRouter();
+  const { client } = useContext(LitContext);
+  const [audios, setAudios] = useState(new Map());
+  const [currentylPlayin, setCurrentlyPlaying] = useState<string | null>(null);
+
+  const putAudio = (key: string, audio: HTMLAudioElement) => {
+    const newAudios = new Map(audios);
+    newAudios.set(key, audio);
+    setAudios(newAudios);
+  };
 
   const { id } = router.query;
 
@@ -16,6 +46,16 @@ const ArtistProfile = () => {
         id
         name
         bio
+        tracks {
+          id
+          name
+          cover
+          content
+          createdAt
+          artist {
+            name
+          }
+        }
       }
     }
   `;
@@ -71,6 +111,69 @@ const ArtistProfile = () => {
           ) : (
             <></>
           )}
+          <section className="mt-8">
+            <h3 className="text-lg font-bold ">Tracks</h3>
+            <div className="divider mt-2 "></div>
+
+            <div className="py-4">
+              {data.artist.tracks.map((track: Track) => (
+                <div
+                  key={track.id}
+                  className="panel-shadow w-full mb-2 bg-sec p-2 px-4 flex items-center justify-between cursor-pointer"
+                >
+                  <div className="w-3/6 flex items-center justify-between">
+                    <img
+                      src={`https://ipfs.io/ipfs/${track.cover}`}
+                      className="border-2 border-black w-12 h-12"
+                    />
+                    <p className="">{track.name}</p>
+                    <p className="">{track.artist.name}</p>
+                  </div>
+                  <div
+                    onClick={async () => {
+                      if (audios.get(track.id)) {
+                        const audio = audios.get(track.id);
+                        if (currentylPlayin == track.id) {
+                          audio.pause();
+                          setCurrentlyPlaying(null);
+                        } else {
+                          if (audios.get(currentylPlayin)) {
+                            audios.get(currentylPlayin).pause();
+                          }
+                          audio.play();
+                          setCurrentlyPlaying(track.id);
+                        }
+                      } else {
+                        const trackUrl = await getTrackUrl(client)(
+                          track.content,
+                          track.name
+                        );
+
+                        const audio = new Audio(String(trackUrl));
+
+                        console.log(audio);
+
+                        putAudio(track.id, audio);
+
+                        audio.play();
+
+                        setCurrentlyPlaying(track.id);
+                      }
+                    }}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="green-btn  w-10 h-10 border-2 border-black rounded-full flex justify-center items-center cursor-pointer">
+                      {currentylPlayin !== track.id ? (
+                        <FaPlay className="ml-1" />
+                      ) : (
+                        <FaPause />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       ) : (
         <div>
