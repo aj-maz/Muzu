@@ -1,12 +1,17 @@
 import { FC, useState } from "react";
 import { useRouter } from "next/router";
 import { upload } from "../lib/web3StorageHelper";
+import { useWeb3React } from "@web3-react/core";
+import { ethers } from "ethers";
+import Muzu from "../abis/Muzu.json";
 
 const SetupForm: FC = () => {
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+
+  const { library, account } = useWeb3React();
 
   return (
     <div className="w-full h-full ">
@@ -33,8 +38,19 @@ const SetupForm: FC = () => {
           onClick={async () => {
             if (name) {
               const metadata = await upload({ name, bio });
+              const signer = library.getSigner();
 
-              console.log(metadata);
+              const muzu = new ethers.Contract(
+                String(process.env.NEXT_PUBLIC_MUZU_ADDRESS),
+                Muzu,
+                signer
+              );
+
+              await muzu.setupAccount(metadata);
+
+              // TODO:: Should be send to the artist profile now
+              // Should wait for tx to be confirmed and then transfer the user
+              // Should also add a loading state
             }
           }}
         >

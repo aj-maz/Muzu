@@ -1,4 +1,4 @@
-import { BigInt, ipfs, json } from "@graphprotocol/graph-ts";
+import { BigInt, ipfs, json, Address } from "@graphprotocol/graph-ts";
 import {
   Muzu,
   AccountSettedUp,
@@ -24,10 +24,10 @@ export function handleAccountSettedUp(event: AccountSettedUp): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
 
-  let artist = Artist.load(event.params._userAddress.toString());
+  let artist = Artist.load(event.params._userAddress.toHex());
 
   if (!artist) {
-    artist = new Artist(event.params._userAddress.toString());
+    artist = new Artist(event.params._userAddress.toHex());
     artist.balance = BigInt.fromI32(0);
     artist.tracks = [];
     artist.albums = [];
@@ -48,6 +48,8 @@ export function handleAccountSettedUp(event: AccountSettedUp): void {
       }
     }
   }
+
+  artist.save();
 
   // Entities only exist after they have been saved to the store;
   // `null` checks allow to create entities on demand
