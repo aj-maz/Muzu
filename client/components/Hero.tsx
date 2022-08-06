@@ -2,7 +2,7 @@ import { FC, useState, useEffect } from "react";
 import { injected } from "../lib/connectors";
 import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import client from "../lib/apolloClient";
 
 const Hero: FC = () => {
@@ -39,6 +39,7 @@ const Hero: FC = () => {
 
         if(data.artist) {
           router.push(`/artist/${data.artist.id}`)
+          router.push("/setup")
         } else {
           router.push("/setup")
         }
