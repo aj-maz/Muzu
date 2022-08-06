@@ -2,8 +2,6 @@ import { FC, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { upload } from "../lib/web3StorageHelper";
 import { useWeb3React } from "@web3-react/core";
-import { ethers } from "ethers";
-import Muzu from "../abis/Muzu.json";
 import useMuzu from "../lib/useMuzu";
 import { gql, useQuery } from "@apollo/client";
 

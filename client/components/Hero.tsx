@@ -39,7 +39,6 @@ const Hero: FC = () => {
 
         if(data.artist) {
           router.push(`/artist/${data.artist.id}`)
-          router.push("/setup")
         } else {
           router.push("/setup")
         }

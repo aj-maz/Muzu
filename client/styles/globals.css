@@ -29,6 +29,15 @@ input {
   color: #fe6167;
 }
 
+.blue-btn {
+  background-color: #aaddff;
+  transition: 200ms;
+}
+
+.blue-btn:hover {
+  background-color: #92D4FF;
+}
+
 .sidebar-btn {
   transition: 200ms;
 }
@@ -95,7 +104,6 @@ input {
   cursor: not-allowed !important;
   transition: 200ms;
 }
-
 
 .green-btn {
   background: #21ffb6;
