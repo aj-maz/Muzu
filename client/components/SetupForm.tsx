@@ -5,6 +5,7 @@ import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import Muzu from "../abis/Muzu.json";
 import useMuzu from "../lib/useMuzu";
+import { gql, useQuery } from "@apollo/client";
 
 const SetupForm: FC = () => {
   const router = useRouter();
@@ -22,6 +23,31 @@ const SetupForm: FC = () => {
       router.push("/");
     }
   }, [library]);
+
+  const ARTIST = gql`
+    query Artist($id: ID!) {
+      artist(id: $id) {
+        id
+        name
+        bio
+      }
+    }
+  `;
+
+  const {
+    data,
+    loading: dataLoading,
+    error,
+  } = useQuery(ARTIST, {
+    variables: { id: account ? account.toLowerCase() : "" },
+  });
+
+  useEffect(() => {
+    if (data && data.artist) {
+      setName(data.artist.name);
+      setBio(data.artist.bio);
+    }
+  }, [data]);
 
   return (
     <div className="w-full h-full ">
