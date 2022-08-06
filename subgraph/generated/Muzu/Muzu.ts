@@ -218,6 +218,32 @@ export class TrackDefined__Params {
   }
 }
 
+export class TrackMinted extends ethereum.Event {
+  get params(): TrackMinted__Params {
+    return new TrackMinted__Params(this);
+  }
+}
+
+export class TrackMinted__Params {
+  _event: TrackMinted;
+
+  constructor(event: TrackMinted) {
+    this._event = event;
+  }
+
+  get _trackId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get _minter(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get _tokenId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class Transfer extends ethereum.Event {
   get params(): Transfer__Params {
     return new Transfer__Params(this);
@@ -241,6 +267,28 @@ export class Transfer__Params {
 
   get tokenId(): BigInt {
     return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class Withdrawl extends ethereum.Event {
+  get params(): Withdrawl__Params {
+    return new Withdrawl__Params(this);
+  }
+}
+
+export class Withdrawl__Params {
+  _event: Withdrawl;
+
+  constructor(event: Withdrawl) {
+    this._event = event;
+  }
+
+  get _artist(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get _amount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -394,6 +442,38 @@ export class Muzu extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  doesOwnTrack(_trackId: BigInt, _userAddress: Address): boolean {
+    let result = super.call(
+      "doesOwnTrack",
+      "doesOwnTrack(uint256,address):(bool)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_trackId),
+        ethereum.Value.fromAddress(_userAddress)
+      ]
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_doesOwnTrack(
+    _trackId: BigInt,
+    _userAddress: Address
+  ): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "doesOwnTrack",
+      "doesOwnTrack(uint256,address):(bool)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_trackId),
+        ethereum.Value.fromAddress(_userAddress)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
   getApproved(tokenId: BigInt): Address {
@@ -601,6 +681,35 @@ export class Muzu extends ethereum.SmartContract {
       "tokensToTracks",
       "tokensToTracks(uint256):(uint256)",
       [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  trackTokens(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "trackTokens",
+      "trackTokens(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_trackTokens(param0: BigInt, param1: BigInt): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "trackTokens",
+      "trackTokens(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -961,40 +1070,6 @@ export class RenounceOwnershipCall__Outputs {
   _call: RenounceOwnershipCall;
 
   constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class SafeMintCall extends ethereum.Call {
-  get inputs(): SafeMintCall__Inputs {
-    return new SafeMintCall__Inputs(this);
-  }
-
-  get outputs(): SafeMintCall__Outputs {
-    return new SafeMintCall__Outputs(this);
-  }
-}
-
-export class SafeMintCall__Inputs {
-  _call: SafeMintCall;
-
-  constructor(call: SafeMintCall) {
-    this._call = call;
-  }
-
-  get to(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get uri(): string {
-    return this._call.inputValues[1].value.toString();
-  }
-}
-
-export class SafeMintCall__Outputs {
-  _call: SafeMintCall;
-
-  constructor(call: SafeMintCall) {
     this._call = call;
   }
 }

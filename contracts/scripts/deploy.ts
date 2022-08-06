@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import "@nomiclabs/hardhat-etherscan";
 
 async function main() {
   function sleep(ms: number) {
@@ -31,8 +32,8 @@ async function main() {
   console.log(`MUZU address is: `, muzu.address);
 }
 
-//USDC address is:  0x62251F8cFdB9389935a225beF541d0E940cfb6cE
-//MUZU address is:  0x5F9872012C1A71a2334deb78763ac0dD20037C00
+//USDC address is:  0xBfE9af648C490Be0bD822b67367470e290Cc4824
+//MUZU address is:  0x5Cb65417Bd4b0109A0669932176AD74Ecaaa7f95
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

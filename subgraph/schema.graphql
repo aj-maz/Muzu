@@ -10,26 +10,16 @@ type Artist @entity {
   balance: BigInt!
   name: String
   bio: String
-  tracks: [Track!]!
-  albums: [Album!]!
+  tracks: [Track!]! @derivedFrom(field: "artist")
   joinedAt: BigInt!
-}
-
-type Album @entity {
-  id: ID!
-  title: String!
-  coverImage: String!
-  description: String
-  tracks: [Track!]!
-  createdAt: BigInt!
 }
 
 type Track @entity {
   id: ID!
+  artist: Artist!
   name: String!
   content: String!
   cover: String!
-  album: Album
   royaltyFee: Int!
   royaltyReceiver: String!
   createdAt: BigInt!
@@ -46,5 +36,4 @@ type User @entity {
   id: ID!
   tokens: [Token!]!
   Tracks: [Track!]!
-  Album: [Album!]!
 }

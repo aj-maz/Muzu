@@ -80,8 +80,6 @@ export class Artist extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("balance", Value.fromBigInt(BigInt.zero()));
-    this.set("tracks", Value.fromStringArray(new Array(0)));
-    this.set("albums", Value.fromStringArray(new Array(0)));
     this.set("joinedAt", Value.fromBigInt(BigInt.zero()));
   }
 
@@ -162,15 +160,6 @@ export class Artist extends Entity {
     this.set("tracks", Value.fromStringArray(value));
   }
 
-  get albums(): Array<string> {
-    let value = this.get("albums");
-    return value!.toStringArray();
-  }
-
-  set albums(value: Array<string>) {
-    this.set("albums", Value.fromStringArray(value));
-  }
-
   get joinedAt(): BigInt {
     let value = this.get("joinedAt");
     return value!.toBigInt();
@@ -181,101 +170,12 @@ export class Artist extends Entity {
   }
 }
 
-export class Album extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-
-    this.set("title", Value.fromString(""));
-    this.set("coverImage", Value.fromString(""));
-    this.set("tracks", Value.fromStringArray(new Array(0)));
-    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Album entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type Album must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Album", id.toString(), this);
-    }
-  }
-
-  static load(id: string): Album | null {
-    return changetype<Album | null>(store.get("Album", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get title(): string {
-    let value = this.get("title");
-    return value!.toString();
-  }
-
-  set title(value: string) {
-    this.set("title", Value.fromString(value));
-  }
-
-  get coverImage(): string {
-    let value = this.get("coverImage");
-    return value!.toString();
-  }
-
-  set coverImage(value: string) {
-    this.set("coverImage", Value.fromString(value));
-  }
-
-  get description(): string | null {
-    let value = this.get("description");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set description(value: string | null) {
-    if (!value) {
-      this.unset("description");
-    } else {
-      this.set("description", Value.fromString(<string>value));
-    }
-  }
-
-  get tracks(): Array<string> {
-    let value = this.get("tracks");
-    return value!.toStringArray();
-  }
-
-  set tracks(value: Array<string>) {
-    this.set("tracks", Value.fromStringArray(value));
-  }
-
-  get createdAt(): BigInt {
-    let value = this.get("createdAt");
-    return value!.toBigInt();
-  }
-
-  set createdAt(value: BigInt) {
-    this.set("createdAt", Value.fromBigInt(value));
-  }
-}
-
 export class Track extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
 
+    this.set("artist", Value.fromString(""));
     this.set("name", Value.fromString(""));
     this.set("content", Value.fromString(""));
     this.set("cover", Value.fromString(""));
@@ -309,6 +209,15 @@ export class Track extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get artist(): string {
+    let value = this.get("artist");
+    return value!.toString();
+  }
+
+  set artist(value: string) {
+    this.set("artist", Value.fromString(value));
+  }
+
   get name(): string {
     let value = this.get("name");
     return value!.toString();
@@ -334,23 +243,6 @@ export class Track extends Entity {
 
   set cover(value: string) {
     this.set("cover", Value.fromString(value));
-  }
-
-  get album(): string | null {
-    let value = this.get("album");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set album(value: string | null) {
-    if (!value) {
-      this.unset("album");
-    } else {
-      this.set("album", Value.fromString(<string>value));
-    }
   }
 
   get royaltyFee(): i32 {
@@ -451,7 +343,6 @@ export class User extends Entity {
 
     this.set("tokens", Value.fromStringArray(new Array(0)));
     this.set("Tracks", Value.fromStringArray(new Array(0)));
-    this.set("Album", Value.fromStringArray(new Array(0)));
   }
 
   save(): void {
@@ -495,14 +386,5 @@ export class User extends Entity {
 
   set Tracks(value: Array<string>) {
     this.set("Tracks", Value.fromStringArray(value));
-  }
-
-  get Album(): Array<string> {
-    let value = this.get("Album");
-    return value!.toStringArray();
-  }
-
-  set Album(value: Array<string>) {
-    this.set("Album", Value.fromStringArray(value));
   }
 }

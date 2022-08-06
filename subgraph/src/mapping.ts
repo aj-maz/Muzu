@@ -10,15 +10,9 @@ import {
   OwnershipTransferred,
   TrackDefined,
   Transfer,
+  Withdrawl,
 } from "../generated/Muzu/Muzu";
-import {
-  ExampleEntity,
-  Artist,
-  Album,
-  Track,
-  Token,
-  User,
-} from "../generated/schema";
+import { ExampleEntity, Artist, Track, Token, User } from "../generated/schema";
 
 export function handleAccountSettedUp(event: AccountSettedUp): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -29,8 +23,6 @@ export function handleAccountSettedUp(event: AccountSettedUp): void {
   if (!artist) {
     artist = new Artist(event.params._userAddress.toHex());
     artist.balance = BigInt.fromI32(0);
-    artist.tracks = [];
-    artist.albums = [];
     artist.joinedAt = event.block.timestamp;
   }
 
@@ -115,6 +107,39 @@ export function handleInitialized(event: Initialized): void {}
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
-export function handleTrackDefined(event: TrackDefined): void {}
+export function handleTrackDefined(event: TrackDefined): void {
+  let track = Track.load(event.params._trackId.toString());
+
+  if (!track) {
+    track = new Track(event.params._trackId.toString());
+    track.artist = event.params._artist.toHex();
+    track.royaltyFee = event.params._royaltyFraction.toI32();
+    track.royaltyReceiver = event.params._royaltyReceiver.toHex();
+    track.createdAt = event.block.timestamp;
+  }
+
+  let data = ipfs.cat(event.params._dataHash.toString());
+  if (data) {
+    let value = json.fromBytes(data).toObject();
+    if (value) {
+      const name = value.get("name");
+      if (name) {
+        track.name = name.toString();
+      }
+      const cover = value.get("cover");
+      if (cover) {
+        track.cover = cover.toString();
+      }
+      const content = value.get("track");
+      if (content) {
+        track.content = content.toString();
+      }
+    }
+  }
+
+  track.save();
+}
 
 export function handleTransfer(event: Transfer): void {}
+
+export function handleWithdrawl(event: Withdrawl): void {}

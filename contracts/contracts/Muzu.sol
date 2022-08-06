@@ -56,6 +56,7 @@ contract Muzu is
 
     mapping(uint256 => Track) public tracks;
     mapping(uint256 => Album) public albums;
+    mapping(uint256 => uint256[]) public trackTokens;
 
     function initialize(address _usdcAddress) public initializer {
         __ERC721_init("Muzu", "MZU");
@@ -159,19 +160,29 @@ contract Muzu is
             track.royaltyInfo.royaltyFraction
         );
         tokensToTracks[tokenId] = _trackId;
+        trackTokens[_trackId].push(tokenId);
+        emit TrackMinted(_trackId, msg.sender, tokenId);
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner {
-        //uint256 tokenId = _tokenIdCounter.current();
-        //_tokenIdCounter.increment();
-        //_safeMint(to, tokenId);
-        //_setTokenURI(tokenId, uri);
+    function doesOwnTrack(uint256 _trackId, address _userAddress)
+        public
+        view
+        returns (bool result)
+    {
+        result = false;
+        uint256[] memory tokensOfTrack = trackTokens[_trackId];
+        for (uint256 i = 0; i < tokensOfTrack.length; i++) {
+            if (ownerOf(tokensOfTrack[i]) == _userAddress) {
+                result = true;
+            }
+        }
     }
 
     function withdraw() public {
         uint256 balance = artistsBalances[msg.sender];
         artistsBalances[msg.sender] = 0;
         IERC20(usdcAddress).transfer(msg.sender, balance);
+        emit Withdrawl(msg.sender, balance);
     }
 
     // The following functions are overrides required by Solidity.
@@ -222,4 +233,10 @@ contract Muzu is
         string _dataHash
     );
     event AlbumMinted(address indexed _user, uint256 indexed _albumId);
+    event Withdrawl(address indexed _artist, uint256 _amount);
+    event TrackMinted(
+        uint256 indexed _trackId,
+        address indexed _minter,
+        uint256 indexed _tokenId
+    );
 }
