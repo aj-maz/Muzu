@@ -1,12 +1,23 @@
-import { FC } from "react";
+import { FC, useState, useEffect } from "react";
 import { injected } from "../lib/connectors";
 import { useWeb3React } from "@web3-react/core";
 import { useRouter } from "next/router";
+import { gql, useQuery } from "@apollo/client";
+import client from "../lib/apolloClient";
 
 const Hero: FC = () => {
   const router = useRouter();
+  const [goToArtistPage, setGoToArtistPage] = useState(false);
+  const { activate, account } = useWeb3React();
 
-  const { activate } = useWeb3React();
+  const ARTIST = gql`
+    query Artist($id: ID!) {
+      artist(id: $id) {
+        id
+        name
+      }
+    }
+  `;
 
   const connect = async () => {
     try {
@@ -15,6 +26,27 @@ const Hero: FC = () => {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    const main = async () => {
+      if (goToArtistPage && account) {
+        const {data} = await client.query({
+          query: ARTIST,
+          variables: {
+            id: account.toLowerCase(),
+          },
+        });
+
+        if(data.artist) {
+          router.push(`/artist/${data.artist.id}`)
+        } else {
+          router.push("/setup")
+        }
+      }
+    };
+
+    main();
+  }, [goToArtistPage, account]);
 
   return (
     <div className="w-full h-full flex justify-center items-center">
@@ -32,7 +64,10 @@ const Hero: FC = () => {
             onClick={async () => {
               await connect();
               // TODO should check if the account setted up or not!
-              router.push("/setup");
+
+              setGoToArtistPage(true);
+
+              //router.push("/setup");
             }}
             className="cursor-pointer panel-shadow inline-block p-2 ml-5 text-lg green-btn px-8"
           >
