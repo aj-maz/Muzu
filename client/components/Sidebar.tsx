@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import NavButton from "./NavButton";
 import { useRouter } from "next/router";
 

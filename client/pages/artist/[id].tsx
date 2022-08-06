@@ -55,7 +55,12 @@ const ArtistProfile = () => {
             <header className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">Creator Dashboard</h1>
               <div>
-                <div className="cursor-pointer panel-shadow inline-block p-1 text-md yellow-btn px-4">
+                <div
+                  onClick={() => {
+                    router.push("/define-track");
+                  }}
+                  className="cursor-pointer panel-shadow inline-block p-1 text-md yellow-btn px-4"
+                >
                   Add Track
                 </div>
                 <div className="cursor-pointer panel-shadow inline-block ml-4 p-1 text-md sec-btn px-4">
