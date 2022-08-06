@@ -1,21 +1,31 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { upload } from "../lib/web3StorageHelper";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import Muzu from "../abis/Muzu.json";
+import useMuzu from "../lib/useMuzu";
 
 const SetupForm: FC = () => {
   const router = useRouter();
 
+  const MuzuContract = useMuzu();
+
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { library, account } = useWeb3React();
 
+  useEffect(() => {
+    if (!library) {
+      router.push("/");
+    }
+  }, [library]);
+
   return (
     <div className="w-full h-full ">
-      <h1 className="text-2xl font-bold">Setup the creator account</h1>
+      <h1 className="text-2xl font-bold">Setup the creator account info</h1>
       <div className="mt-10">
         <input
           placeholder="Your Artistic Name"
@@ -33,20 +43,17 @@ const SetupForm: FC = () => {
       <div className="mt-10 flex justify-center">
         <div
           className={`panel-shadow inline-block p-2 ml-5 text-lg  px-8 ${
-            name ? "green-btn cursor-pointer" : "disabled-btn"
+            name && !loading ? "green-btn cursor-pointer" : "disabled-btn"
           }`}
           onClick={async () => {
-            if (name) {
+            if (name && !loading) {
               const metadata = await upload({ name, bio });
-              const signer = library.getSigner();
 
-              const muzu = new ethers.Contract(
-                String(process.env.NEXT_PUBLIC_MUZU_ADDRESS),
-                Muzu,
-                signer
-              );
+              const tx = await MuzuContract.setupAccount(metadata);
 
-              await muzu.setupAccount(metadata);
+              setLoading(true);
+              await tx.wait();
+              setLoading(false);
 
               // TODO:: Should be send to the artist profile now
               // Should wait for tx to be confirmed and then transfer the user
@@ -54,7 +61,7 @@ const SetupForm: FC = () => {
             }
           }}
         >
-          Setup Account
+          {loading ? "Setting Up The Account" : "Setup Account"}
         </div>
       </div>
     </div>

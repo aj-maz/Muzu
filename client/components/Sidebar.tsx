@@ -5,8 +5,6 @@ import { useRouter } from "next/router";
 const Sidebar: FC = () => {
   const router = useRouter();
 
-  console.log(router.pathname);
-
   return (
     <nav className=" border-black w-80 border-black border-r-4 sidebar bg-sec inline-block">
       <div className="pt-8">
