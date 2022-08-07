@@ -30,6 +30,11 @@ const Home: NextPage = () => {
       if (account) {
         setDoesOwn(await MuzuContract.doesOwnTrack(id, account));
       }
+      setInterval(async () => {
+        if (account) {
+          setDoesOwn(await MuzuContract.doesOwnTrack(id, account));
+        }
+      }, 5 * 1000);
     };
     main();
   }, [account]);
@@ -163,7 +168,7 @@ const Home: NextPage = () => {
             </p>
           </div>
           <div className="">
-            {doesOwn ? (
+            {false ? (
               <></>
             ) : (
               <>

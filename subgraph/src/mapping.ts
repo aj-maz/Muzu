@@ -1,4 +1,4 @@
-import { BigInt, ipfs, json, Address } from "@graphprotocol/graph-ts";
+import { BigInt, ipfs, json, Address, Bytes } from "@graphprotocol/graph-ts";
 import {
   Muzu,
   AccountSettedUp,
@@ -11,8 +11,13 @@ import {
   TrackDefined,
   Transfer,
   Withdrawl,
+  TrackMinted,
 } from "../generated/Muzu/Muzu";
-import { Artist, Track, Token, User } from "../generated/schema";
+import { Artist, Track, Token, User, MoneyTransfer } from "../generated/schema";
+
+let ZERO_ADDRESS_STRING = "0x0000000000000000000000000000000000000000";
+
+let ZERO_ADDRESS: Bytes = Bytes.fromHexString(ZERO_ADDRESS_STRING) as Bytes;
 
 export function handleAccountSettedUp(event: AccountSettedUp): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -143,6 +148,53 @@ export function handleTrackDefined(event: TrackDefined): void {
   track.save();
 }
 
-export function handleTransfer(event: Transfer): void {}
+export function handleTransfer(event: Transfer): void {
+  let token = Token.load(event.params.tokenId.toString());
+
+  if (event.params.from.toHex() != ZERO_ADDRESS_STRING && token) {
+    token.owner = event.params.to.toHex();
+    token.save();
+  }
+}
 
 export function handleWithdrawl(event: Withdrawl): void {}
+
+export function handleTrackMinted(event: TrackMinted): void {
+  let token = Token.load(event.params._tokenId.toString());
+  let minter = User.load(event.params._minter.toHex());
+
+  if (!minter) {
+    minter = new User(event.params._minter.toHex());
+    minter.save();
+  }
+
+  if (!token) {
+    token = new Token(event.params._tokenId.toString());
+    token.track = event.params._trackId.toString();
+    token.owner = event.params._minter.toHex();
+  }
+
+  let track = Track.load(event.params._trackId.toString());
+
+  if (track) {
+    track.minted = track.minted.plus(BigInt.fromI32(1));
+    track.save();
+
+    let artist = Artist.load(track.artist);
+    if (artist) {
+      artist.balance = artist.balance.plus(track.mintPrice);
+      artist.save();
+    }
+
+    let moneyTransfer = new MoneyTransfer(event.transaction.hash.toHex());
+
+    moneyTransfer.amount = track.mintPrice;
+    moneyTransfer.track = track.id;
+    moneyTransfer.from = event.params._minter.toHex();
+    moneyTransfer.to = track.artist;
+
+    moneyTransfer.save();
+  }
+
+  token.save();
+}

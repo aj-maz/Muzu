@@ -30,6 +30,13 @@ type Token @entity {
 
 type User @entity {
   id: ID!
-  tokens: [Token!]!
-  Tracks: [Track!]!
+  tokens: [Token!]! @derivedFrom(field: "owner")
+}
+
+type MoneyTransfer @entity {
+  id: ID!
+  amount: BigInt!
+  track: Track
+  from: User
+  to: Artist
 }

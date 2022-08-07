@@ -26,7 +26,8 @@ export class Artist extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Artist must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        "Cannot save Artist entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
       );
       store.set("Artist", id.toString(), this);
     }
@@ -130,7 +131,8 @@ export class Track extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Track must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        "Cannot save Track entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
       );
       store.set("Track", id.toString(), this);
     }
@@ -256,7 +258,8 @@ export class Token extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Token must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        "Cannot save Token entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
       );
       store.set("Token", id.toString(), this);
     }
@@ -307,9 +310,6 @@ export class User extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("tokens", Value.fromStringArray(new Array(0)));
-    this.set("Tracks", Value.fromStringArray(new Array(0)));
   }
 
   save(): void {
@@ -318,7 +318,8 @@ export class User extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type User must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        "Cannot save User entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
       );
       store.set("User", id.toString(), this);
     }
@@ -345,13 +346,99 @@ export class User extends Entity {
   set tokens(value: Array<string>) {
     this.set("tokens", Value.fromStringArray(value));
   }
+}
 
-  get Tracks(): Array<string> {
-    let value = this.get("Tracks");
-    return value!.toStringArray();
+export class MoneyTransfer extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("amount", Value.fromBigInt(BigInt.zero()));
   }
 
-  set Tracks(value: Array<string>) {
-    this.set("Tracks", Value.fromStringArray(value));
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save MoneyTransfer entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save MoneyTransfer entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("MoneyTransfer", id.toString(), this);
+    }
+  }
+
+  static load(id: string): MoneyTransfer | null {
+    return changetype<MoneyTransfer | null>(store.get("MoneyTransfer", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value!.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get track(): string | null {
+    let value = this.get("track");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set track(value: string | null) {
+    if (!value) {
+      this.unset("track");
+    } else {
+      this.set("track", Value.fromString(<string>value));
+    }
+  }
+
+  get from(): string | null {
+    let value = this.get("from");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set from(value: string | null) {
+    if (!value) {
+      this.unset("from");
+    } else {
+      this.set("from", Value.fromString(<string>value));
+    }
+  }
+
+  get to(): string | null {
+    let value = this.get("to");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set to(value: string | null) {
+    if (!value) {
+      this.unset("to");
+    } else {
+      this.set("to", Value.fromString(<string>value));
+    }
   }
 }

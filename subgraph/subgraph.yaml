@@ -45,4 +45,31 @@ dataSources:
           handler: handleTrackDefined
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+        - event: Withdrawl(indexed address,uint256)
+          handler: handleWithdrawl
+        - event: TrackMinted(indexed uint256,indexed address,indexed uint256)
+          handler: handleTrackMinted
+      file: ./src/mapping.ts
+  - kind: ethereum
+    name: AsksV1_1
+    network: mumbai
+    source:
+      address: "0xCe6cEf2A9028e1C3B21647ae3B4251038109f42a"
+      abi: AsksV1_1
+      startBlock: 27486955
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AskCreated
+        - AskFilled
+      abis:
+        - name: AsksV1_1
+          file: ./abis/AsksV1_1.json
+      eventHandlers:
+        - event: AskCreated(indexed address,indexed uint256,(address,address,address,uint16,uint256))
+          handler: handleAskCreated
+        - event: AskFilled(indexed address,indexed uint256,indexed address,address,(address,address,address,uint16,uint256))
+          handler: handleAskFilled
       file: ./src/mapping.ts
