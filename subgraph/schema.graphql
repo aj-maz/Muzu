@@ -40,3 +40,14 @@ type MoneyTransfer @entity {
   from: User
   to: Artist
 }
+
+type Ask @entity {
+  id: ID!
+  test: String!
+  test2: String!
+  token: Token!
+  track: Track!
+  price: BigInt!
+  asker: User!
+  finalized: Boolean!
+}

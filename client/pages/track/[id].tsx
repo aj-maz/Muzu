@@ -13,8 +13,8 @@ import { injected } from "../../lib/connectors";
 import ERC20 from "../../abis/ERC20.json";
 import AudioPlayer from "../../components/AudioPlayer";
 import getTrackUrl from "../../lib/getTrackUrl";
-
-import Hero from "../../components/Hero";
+import ListNFTS from "../../components/ListNFTs";
+import FillAsk from "../../components/FillAsk";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -88,7 +88,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     const main = async () => {
       console.log("calling the main");
-      if (doesOwn && data.track) {
+      if (doesOwn && data && data.track) {
         setContentLoading(true);
         const trackUrl = await getTrackUrl(client)(
           data.track.content,
@@ -202,10 +202,14 @@ const Home: NextPage = () => {
             </p>
           </div>
           <div className="">
-            {doesOwn ? (
+            {false ? (
               trackUrl ? (
                 <>
-                  <AudioPlayer src={trackUrl} />
+                  <AudioPlayer src={String(trackUrl)} />
+                  <ListNFTS
+                    trackId={data.track.id}
+                    userAddress={String(account)}
+                  />
                 </>
               ) : contentLoading ? (
                 <>
@@ -223,6 +227,10 @@ const Home: NextPage = () => {
                   You can either mint an instance or buy an offer.
                 </div>
                 {minting()}
+                <FillAsk
+                  trackId={data.track.id}
+                  userAddress={String(account)}
+                />
               </>
             )}
           </div>

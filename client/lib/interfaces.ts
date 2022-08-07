@@ -1,3 +1,24 @@
+export interface Token {
+  id: string;
+  track: Track;
+  owner: User;
+  mintedAt: number;
+}
+
+export interface User {
+  id: string;
+  tokens: Token[];
+}
+
+export interface Ask {
+  id: string;
+  asker: User;
+  finalized: boolean;
+  price: string;
+  token: Token;
+  track: Track;
+}
+
 export interface Track {
   id: string;
   name: string;

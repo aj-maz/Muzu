@@ -14,9 +14,18 @@ import {
   TrackMinted,
 } from "../generated/Muzu/Muzu";
 import { AskCreated, AskFilled } from "../generated/AsksV1_1/AsksV1_1";
-import { Artist, Track, Token, User, MoneyTransfer } from "../generated/schema";
+import {
+  Artist,
+  Track,
+  Token,
+  User,
+  MoneyTransfer,
+  Ask,
+} from "../generated/schema";
 
 let ZERO_ADDRESS_STRING = "0x0000000000000000000000000000000000000000";
+
+const MUZU_ADDRESS = "0x5Cb65417Bd4b0109A0669932176AD74Ecaaa7f95";
 
 let ZERO_ADDRESS: Bytes = Bytes.fromHexString(ZERO_ADDRESS_STRING) as Bytes;
 
@@ -200,6 +209,23 @@ export function handleTrackMinted(event: TrackMinted): void {
   token.save();
 }
 
-export function handleAskCreated(event: AskCreated): void {}
+export function handleAskCreated(event: AskCreated): void {
+  if (
+    event.params.tokenContract.toHex().toLowerCase() ==
+    MUZU_ADDRESS.toLowerCase()
+  ) {
+    let ask = new Ask(event.transaction.hash.toHex());
+    let token = Token.load(event.params.tokenId.toString());
+    ask.test = event.params.tokenContract.toHex();
+    if (token) {
+      ask.token = token.id;
+      ask.track = token.track;
+      ask.price = event.params.ask.askPrice;
+      ask.asker = event.params.ask.seller.toHex();
+      ask.finalized = false;
+    }
+    ask.save();
+  }
+}
 
 export function handleAskFilled(event: AskFilled): void {}

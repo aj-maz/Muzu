@@ -35,7 +35,7 @@ input {
 }
 
 .blue-btn:hover {
-  background-color: #92D4FF;
+  background-color: #92d4ff;
 }
 
 .sidebar-btn {
@@ -69,7 +69,6 @@ input {
   box-shadow: 2px 2px;
   border: 2px solid black;
 }
-
 
 .bg-sec {
   background-color: #fffff1;
