@@ -202,7 +202,7 @@ const Home: NextPage = () => {
             </p>
           </div>
           <div className="">
-            {false ? (
+            {doesOwn ? (
               trackUrl ? (
                 <>
                   <AudioPlayer src={String(trackUrl)} />

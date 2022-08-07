@@ -26,7 +26,7 @@ const Sidebar: FC = () => {
           isActive={router.pathname === "/dashboard"}
           label="Dashboard"
           onClick={() => {
-            router.push("/dashboard");
+            //router.push("/dashboard");
           }}
         />
         <NavButton
@@ -40,7 +40,7 @@ const Sidebar: FC = () => {
           isActive={router.pathname === "/profile"}
           label="Profile"
           onClick={() => {
-            router.push("/profile");
+            //router.push("/profile");
           }}
         />
       </div>

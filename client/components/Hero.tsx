@@ -57,7 +57,7 @@ const Hero: FC = () => {
           them.
         </h1>
         <div className="mt-16 flex justify-center">
-          <div className="cursor-pointer panel-shadow inline-block p-2 text-lg yellow-btn px-8">
+          <div onClick={() => router.push("/explore")} className="cursor-pointer panel-shadow inline-block p-2 text-lg yellow-btn px-8">
             I'm a Collector
           </div>
           <div

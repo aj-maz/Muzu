@@ -67,7 +67,7 @@ const Explore: NextPage = () => {
             key={track.id}
             image={`https://ipfs.io/ipfs/${track.cover}`}
             title={track.name}
-            goTo={`/artist/${track.id}`}
+            goTo={`/track/${track.id}`}
           />
         ))}
       </section>
