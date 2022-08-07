@@ -1,10 +1,3 @@
-type ExampleEntity @entity {
-  id: ID!
-  count: BigInt!
-  _userAddress: Bytes! # address
-  _hash: String! # string
-}
-
 type Artist @entity {
   id: ID!
   balance: BigInt!
@@ -23,6 +16,9 @@ type Track @entity {
   royaltyFee: Int!
   royaltyReceiver: String!
   createdAt: BigInt!
+  supply: BigInt!
+  minted: BigInt!
+  mintPrice: BigInt!
 }
 
 type Token @entity {

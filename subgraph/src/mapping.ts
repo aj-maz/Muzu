@@ -12,7 +12,7 @@ import {
   Transfer,
   Withdrawl,
 } from "../generated/Muzu/Muzu";
-import { ExampleEntity, Artist, Track, Token, User } from "../generated/schema";
+import { Artist, Track, Token, User } from "../generated/schema";
 
 export function handleAccountSettedUp(event: AccountSettedUp): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -116,6 +116,9 @@ export function handleTrackDefined(event: TrackDefined): void {
     track.royaltyFee = event.params._royaltyFraction.toI32();
     track.royaltyReceiver = event.params._royaltyReceiver.toHex();
     track.createdAt = event.block.timestamp;
+    track.supply = event.params._supply;
+    track.mintPrice = event.params._mintPrice;
+    track.minted = BigInt.fromI64(0);
   }
 
   let data = ipfs.cat(event.params._dataHash.toString());

@@ -1,4 +1,3 @@
-import {  } from "react";
 import LitJsSdk from "lit-js-sdk";
 import StoreEncryptionData from "./storeEncryptionData";
 import ConditionCreator from "./ConditionCreator";

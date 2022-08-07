@@ -8,21 +8,7 @@ import { LitContext } from "../../lib/LitProvider";
 
 import getTrackUrl from "../../lib/getTrackUrl";
 
-interface Track {
-  id: string;
-  name: string;
-  cover: string;
-  content: string;
-  created: string;
-  artist: Artist;
-}
-
-interface Artist {
-  id: string;
-  name: string;
-  bio: string;
-  tracks: Track[];
-}
+import { Artist, Track } from "../../lib/interfaces";
 
 const ArtistProfile = () => {
   const router = useRouter();
@@ -120,6 +106,9 @@ const ArtistProfile = () => {
                 <div
                   key={track.id}
                   className="panel-shadow w-full mb-2 bg-sec p-2 px-4 flex items-center justify-between cursor-pointer"
+                  onClick={() => {
+                    router.push(`/track/${track.id}`);
+                  }}
                 >
                   <div className="w-3/6 flex items-center justify-between">
                     <img
@@ -130,7 +119,8 @@ const ArtistProfile = () => {
                     <p className="">{track.artist.name}</p>
                   </div>
                   <div
-                    onClick={async () => {
+                    onClick={async (e) => {
+                      e.stopPropagation();
                       if (audios.get(track.id)) {
                         const audio = audios.get(track.id);
                         if (currentylPlayin == track.id) {
@@ -150,8 +140,6 @@ const ArtistProfile = () => {
                         );
 
                         const audio = new Audio(String(trackUrl));
-
-                        console.log(audio);
 
                         putAudio(track.id, audio);
 
