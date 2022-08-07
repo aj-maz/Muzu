@@ -125,46 +125,51 @@ const ArtistProfile = () => {
                     <p className="">{track.name}</p>
                     <p className="">{track.artist.name}</p>
                   </div>
-                  <div
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      if (audios.get(track.id)) {
-                        const audio = audios.get(track.id);
-                        if (currentylPlayin == track.id) {
-                          audio.pause();
-                          setCurrentlyPlaying(null);
-                        } else {
-                          if (audios.get(currentylPlayin)) {
-                            audios.get(currentylPlayin).pause();
+                  {isOwner() ? (
+                    <>
+                      {" "}
+                      <div
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (audios.get(track.id)) {
+                            const audio = audios.get(track.id);
+                            if (currentylPlayin == track.id) {
+                              audio.pause();
+                              setCurrentlyPlaying(null);
+                            } else {
+                              if (audios.get(currentylPlayin)) {
+                                audios.get(currentylPlayin).pause();
+                              }
+                              audio.play();
+                              setCurrentlyPlaying(track.id);
+                            }
+                          } else {
+                            const trackUrl = await getTrackUrl(client)(
+                              track.content,
+                              track.name
+                            );
+
+                            const audio = new Audio(String(trackUrl));
+
+                            putAudio(track.id, audio);
+
+                            audio.play();
+
+                            setCurrentlyPlaying(track.id);
                           }
-                          audio.play();
-                          setCurrentlyPlaying(track.id);
-                        }
-                      } else {
-                        const trackUrl = await getTrackUrl(client)(
-                          track.content,
-                          track.name
-                        );
-
-                        const audio = new Audio(String(trackUrl));
-
-                        putAudio(track.id, audio);
-
-                        audio.play();
-
-                        setCurrentlyPlaying(track.id);
-                      }
-                    }}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="green-btn  w-10 h-10 border-2 border-black rounded-full flex justify-center items-center cursor-pointer">
-                      {currentylPlayin !== track.id ? (
-                        <FaPlay className="ml-1" />
-                      ) : (
-                        <FaPause />
-                      )}
-                    </div>
-                  </div>
+                        }}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="green-btn  w-10 h-10 border-2 border-black rounded-full flex justify-center items-center cursor-pointer">
+                          {currentylPlayin !== track.id ? (
+                            <FaPlay className="ml-1" />
+                          ) : (
+                            <FaPause />
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
                 </div>
               ))}
             </div>

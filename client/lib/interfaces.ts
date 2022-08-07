@@ -33,4 +33,5 @@ export interface Artist {
   name: string;
   bio: string;
   tracks: Track[];
+  cover: string;
 }
