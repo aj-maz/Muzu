@@ -32,6 +32,7 @@ const ArtistProfile = () => {
         id
         name
         bio
+        cover
         tracks {
           id
           name
@@ -62,6 +63,12 @@ const ArtistProfile = () => {
       ) : data.artist ? (
         <div>
           <div className="mb-10">
+            <div>
+              <img
+                src={`https://ipfs.io/ipfs/${data.artist.cover}`}
+                className="w-64 mb-5 panel-shadow"
+              />
+            </div>
             <div className="mb-3 flex justify-between ">
               <h1 className="text-2xl font-bold">{data.artist.name}</h1>
               {isOwner() ? (

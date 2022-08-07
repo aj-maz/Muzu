@@ -53,6 +53,10 @@ export function handleAccountSettedUp(event: AccountSettedUp): void {
       if (bio) {
         artist.bio = bio.toString();
       }
+      const cover = value.get("cover");
+      if (cover) {
+        artist.cover = cover.toString();
+      }
     }
   }
 

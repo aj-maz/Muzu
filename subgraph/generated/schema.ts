@@ -106,6 +106,23 @@ export class Artist extends Entity {
   set joinedAt(value: BigInt) {
     this.set("joinedAt", Value.fromBigInt(value));
   }
+
+  get cover(): string | null {
+    let value = this.get("cover");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set cover(value: string | null) {
+    if (!value) {
+      this.unset("cover");
+    } else {
+      this.set("cover", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class Track extends Entity {

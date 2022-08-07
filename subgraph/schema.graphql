@@ -5,6 +5,7 @@ type Artist @entity {
   bio: String
   tracks: [Track!]! @derivedFrom(field: "artist")
   joinedAt: BigInt!
+  cover: String
 }
 
 type Track @entity {

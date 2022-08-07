@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { upload } from "../lib/web3StorageHelper";
+import { upload, uploadFile } from "../lib/web3StorageHelper";
 import { useWeb3React } from "@web3-react/core";
 import useMuzu from "../lib/useMuzu";
 import { gql, useQuery } from "@apollo/client";
@@ -13,6 +13,8 @@ const SetupForm: FC = () => {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
+  const [coverFile, setCoverFile] = useState<File>();
+  const [coverUrl, setCoverUrl] = useState("");
 
   const { library, account } = useWeb3React();
 
@@ -50,6 +52,39 @@ const SetupForm: FC = () => {
   return (
     <div className="w-full h-full ">
       <h1 className="text-2xl font-bold">Setup the creator account info</h1>
+      <div className="mb-10 mt-20">
+        {coverUrl ? (
+          <>
+            <div>
+              <img src={coverUrl} className="w-64 mb-5 panel-shadow" />
+            </div>
+          </>
+        ) : (
+          <></>
+        )}
+
+        <div>
+          <label
+            htmlFor="cover-upload"
+            className="panel-shadow text-lg p-2 yellow-btn cursor-pointer "
+          >
+            {coverUrl ? "Change Cover" : "Upload Cover"}
+          </label>
+          <input
+            className="hidden"
+            id="cover-upload"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files ? e.target.files[0] : null;
+              if (file) {
+                setCoverFile(file);
+                setCoverUrl(URL.createObjectURL(file));
+              }
+            }}
+          />
+        </div>
+      </div>
       <div className="mt-10">
         <input
           placeholder="Your Artistic Name"
@@ -67,17 +102,24 @@ const SetupForm: FC = () => {
       <div className="mt-10 flex justify-center">
         <div
           className={`panel-shadow inline-block p-2 ml-5 text-lg  px-8 ${
-            name && !loading ? "green-btn cursor-pointer" : "disabled-btn"
+            name && coverFile && !loading
+              ? "green-btn cursor-pointer"
+              : "disabled-btn"
           }`}
           onClick={async () => {
-            if (name && !loading) {
-              const metadata = await upload({ name, bio });
+            if (name && coverFile && !loading) {
+              setLoading(true);
+
+              const cover = await uploadFile(coverFile);
+
+              const metadata = await upload({ name, bio, cover });
 
               const tx = await MuzuContract.setupAccount(metadata);
 
-              setLoading(true);
               await tx.wait();
               setLoading(false);
+
+              router.push(`/artist/${account}`);
 
               // TODO:: Should be send to the artist profile now
               // Should wait for tx to be confirmed and then transfer the user
