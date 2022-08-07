@@ -13,6 +13,7 @@ import {
   Withdrawl,
   TrackMinted,
 } from "../generated/Muzu/Muzu";
+import { AskCreated, AskFilled } from "../generated/AsksV1_1/AsksV1_1";
 import { Artist, Track, Token, User, MoneyTransfer } from "../generated/schema";
 
 let ZERO_ADDRESS_STRING = "0x0000000000000000000000000000000000000000";
@@ -198,3 +199,7 @@ export function handleTrackMinted(event: TrackMinted): void {
 
   token.save();
 }
+
+export function handleAskCreated(event: AskCreated): void {}
+
+export function handleAskFilled(event: AskFilled): void {}

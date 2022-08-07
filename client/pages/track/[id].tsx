@@ -11,6 +11,8 @@ import moment from "moment";
 import { ethers } from "ethers";
 import { injected } from "../../lib/connectors";
 import ERC20 from "../../abis/ERC20.json";
+import AudioPlayer from "../../components/AudioPlayer";
+import getTrackUrl from "../../lib/getTrackUrl";
 
 import Hero from "../../components/Hero";
 
@@ -20,6 +22,9 @@ const Home: NextPage = () => {
   const { client } = useContext(LitContext);
   const { id } = router.query;
   const [mintLoading, setMintLoading] = useState(false);
+  const [contentLoading, setContentLoading] = useState(false);
+
+  const [trackUrl, setTrackUrl] = useState<string | undefined>();
 
   const MuzuContract = useMuzu();
 
@@ -28,11 +33,19 @@ const Home: NextPage = () => {
   useEffect(() => {
     const main = async () => {
       if (account) {
-        setDoesOwn(await MuzuContract.doesOwnTrack(id, account));
+        try {
+          setDoesOwn(await MuzuContract.doesOwnTrack(id, account));
+        } catch (err) {
+          console.log(err);
+        }
       }
       setInterval(async () => {
         if (account) {
-          setDoesOwn(await MuzuContract.doesOwnTrack(id, account));
+          try {
+            setDoesOwn(await MuzuContract.doesOwnTrack(id, account));
+          } catch (err) {
+            console.log(err);
+          }
         }
       }, 5 * 1000);
     };
@@ -72,6 +85,23 @@ const Home: NextPage = () => {
     pollInterval: 10 * 1000,
   });
 
+  useEffect(() => {
+    const main = async () => {
+      console.log("calling the main");
+      if (doesOwn && data.track) {
+        setContentLoading(true);
+        const trackUrl = await getTrackUrl(client)(
+          data.track.content,
+          data.track.name
+        );
+        setTrackUrl(trackUrl);
+        setContentLoading(false);
+      }
+    };
+
+    main();
+  }, [doesOwn, data]);
+
   const minting = () => {
     console.log(data);
     return (
@@ -102,39 +132,43 @@ const Home: NextPage = () => {
               if (!active) {
                 await connect();
               } else {
-                const signer = library.getSigner();
-                const usdc = new ethers.Contract(
-                  String(process.env.NEXT_PUBLIC_USDC_ADDRESS),
-                  ERC20,
-                  signer
-                );
-
-                console.log(account, process.env.NEXT_PUBLIC_MUZU_ADDRESS);
-
-                setMintLoading(true);
-
-                const allowance = await usdc.allowance(
-                  account,
-                  process.env.NEXT_PUBLIC_MUZU_ADDRESS
-                );
-
-                const mintPrice = ethers.BigNumber.from(data.track.mintPrice);
-
-                if (mintPrice.gt(allowance)) {
-                  const tx1 = await usdc.approve(
-                    process.env.NEXT_PUBLIC_MUZU_ADDRESS,
-                    mintPrice
+                try {
+                  const signer = library.getSigner();
+                  const usdc = new ethers.Contract(
+                    String(process.env.NEXT_PUBLIC_USDC_ADDRESS),
+                    ERC20,
+                    signer
                   );
 
-                  await tx1.wait();
+                  console.log(account, process.env.NEXT_PUBLIC_MUZU_ADDRESS);
+
+                  setMintLoading(true);
+
+                  const allowance = await usdc.allowance(
+                    account,
+                    process.env.NEXT_PUBLIC_MUZU_ADDRESS
+                  );
+
+                  const mintPrice = ethers.BigNumber.from(data.track.mintPrice);
+
+                  if (mintPrice.gt(allowance)) {
+                    const tx1 = await usdc.approve(
+                      process.env.NEXT_PUBLIC_MUZU_ADDRESS,
+                      mintPrice
+                    );
+
+                    await tx1.wait();
+                  }
+
+                  const tx2 = await MuzuContract.mintTrack(id);
+                  await tx2.wait();
+
+                  setMintLoading(false);
+
+                  refetch();
+                } catch (err) {
+                  console.log(err);
                 }
-
-                const tx2 = await MuzuContract.mintTrack(id);
-                await tx2.wait();
-
-                setMintLoading(false);
-
-                refetch();
               }
             }}
           >
@@ -168,8 +202,20 @@ const Home: NextPage = () => {
             </p>
           </div>
           <div className="">
-            {false ? (
-              <></>
+            {doesOwn ? (
+              trackUrl ? (
+                <>
+                  <AudioPlayer src={trackUrl} />
+                </>
+              ) : contentLoading ? (
+                <>
+                  <p className="text-lg">
+                    Loading the content of the track ...
+                  </p>
+                </>
+              ) : (
+                <></>
+              )
             ) : (
               <>
                 <div className="text-sm mb-4">
